@@ -32,6 +32,9 @@ tests:
     - desc: duration in months (crossing year)
       expression: "@2024-11-01.duration(@2025-02-01, 'month')"
       result: [3]
+    - desc: duration in months (multiple years)
+      expression: "@2020-03-15.duration(@2025-06-20, 'month')"
+      result: [63]
 
   - 'group: duration - weeks':
     - desc: duration in weeks (less than 7 days)
