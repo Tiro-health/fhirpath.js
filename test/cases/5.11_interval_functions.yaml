@@ -1,0 +1,165 @@
+# Tests for 5.11 Date and Time Interval Functions (duration, difference)
+# See https://build.fhir.org/ig/HL7/FHIRPath/#date-and-time-interval-functions
+
+tests:
+  - 'group: duration - years':
+    - desc: duration in years (whole year not passed - 9 months)
+      expression: "@2025-01-01.duration(@2025-09-01, 'year')"
+      result: [0]
+    - desc: duration in years (whole year not passed - 10 months)
+      expression: "@2024-12-01.duration(@2025-09-01, 'year')"
+      result: [0]
+    - desc: duration in years (whole year passed)
+      expression: "@2024-01-01.duration(@2025-09-01, 'year')"
+      result: [1]
+    - desc: duration in years (multiple years)
+      expression: "@2020-01-01.duration(@2025-06-15, 'year')"
+      result: [5]
+    - desc: duration in years (negative - input after value)
+      expression: "@2025-09-01.duration(@2024-01-01, 'year')"
+      result: [-1]
+
+  - 'group: duration - months':
+    - desc: duration in months (full month not passed)
+      expression: "@2025-01-15.duration(@2025-02-10, 'month')"
+      result: [0]
+    - desc: duration in months (full month passed)
+      expression: "@2025-01-15.duration(@2025-03-20, 'month')"
+      result: [2]
+    - desc: duration in months (exactly on boundary)
+      expression: "@2025-01-15.duration(@2025-02-15, 'month')"
+      result: [1]
+    - desc: duration in months (crossing year)
+      expression: "@2024-11-01.duration(@2025-02-01, 'month')"
+      result: [3]
+
+  - 'group: duration - weeks':
+    - desc: duration in weeks (less than 7 days)
+      expression: "@2025-01-02.duration(@2025-01-07, 'week')"
+      result: [0]
+    - desc: duration in weeks (exactly 7 days)
+      expression: "@2025-01-01.duration(@2025-01-08, 'week')"
+      result: [1]
+    - desc: duration in weeks (multiple weeks)
+      expression: "@2025-01-01.duration(@2025-01-22, 'week')"
+      result: [3]
+
+  - 'group: duration - days':
+    - desc: duration in days (same day)
+      expression: "@2025-01-01.duration(@2025-01-01, 'day')"
+      result: [0]
+    - desc: duration in days (next day)
+      expression: "@2025-01-01.duration(@2025-01-02, 'day')"
+      result: [1]
+    - desc: duration in days (multiple days)
+      expression: "@2025-01-01.duration(@2025-01-15, 'day')"
+      result: [14]
+    - desc: duration in days (negative)
+      expression: "@2025-01-15.duration(@2025-01-01, 'day')"
+      result: [-14]
+
+  - 'group: duration - datetime with time precision':
+    - desc: duration in hours
+      expression: "@2025-01-01T10:00:00.duration(@2025-01-01T15:30:00, 'hour')"
+      result: [5]
+    - desc: duration in minutes
+      expression: "@2025-01-01T10:00:00.duration(@2025-01-01T10:45:00, 'minute')"
+      result: [45]
+    - desc: duration in seconds
+      expression: "@2025-01-01T10:00:00.duration(@2025-01-01T10:01:30, 'second')"
+      result: [90]
+
+  - 'group: duration - time values':
+    - desc: duration in hours (time only)
+      expression: "@T10:00:00.duration(@T15:30:00, 'hour')"
+      result: [5]
+    - desc: duration in minutes (time only)
+      expression: "@T10:00:00.duration(@T10:45:30, 'minute')"
+      result: [45]
+
+  - 'group: duration - empty results':
+    - desc: empty when precision exceeds input precision
+      expression: "@2025-01.duration(@2025-06-15, 'day')"
+      result: []
+    - desc: empty when precision exceeds value precision
+      expression: "@2025-01-15.duration(@2025-06, 'day')"
+      result: []
+
+  - 'group: difference - years':
+    - desc: difference in years (same year)
+      expression: "@2025-01-01.difference(@2025-09-01, 'year')"
+      result: [0]
+    - desc: difference in years (crossed one year boundary)
+      expression: "@2024-12-31.difference(@2025-01-01, 'year')"
+      result: [1]
+    - desc: difference in years (crossed boundary - full spec example)
+      expression: "@2024-12-01.difference(@2025-09-01, 'year')"
+      result: [1]
+    - desc: difference in years (multiple boundaries)
+      expression: "@2020-06-15.difference(@2025-03-01, 'year')"
+      result: [5]
+
+  - 'group: difference - months':
+    - desc: difference in months (same month)
+      expression: "@2025-01-01.difference(@2025-01-31, 'month')"
+      result: [0]
+    - desc: difference in months (crossed one month boundary)
+      expression: "@2025-01-31.difference(@2025-02-01, 'month')"
+      result: [1]
+    - desc: difference in months (multiple boundaries)
+      expression: "@2025-01-15.difference(@2025-04-20, 'month')"
+      result: [3]
+
+  - 'group: difference - weeks':
+    - desc: difference in weeks (no Sunday crossed)
+      expression: "@2025-01-06.difference(@2025-01-08, 'week')"
+      result: [0]
+    - desc: difference in weeks (crossed Sunday - spec example)
+      expression: "@2025-01-02.difference(@2025-01-07, 'week')"
+      result: [1]
+    - desc: difference in weeks (multiple Sundays crossed)
+      expression: "@2025-01-01.difference(@2025-01-20, 'week')"
+      result: [3]
+
+  - 'group: difference - days':
+    - desc: difference in days (same day)
+      expression: "@2025-01-01.difference(@2025-01-01, 'day')"
+      result: [0]
+    - desc: difference in days (next day)
+      expression: "@2025-01-01.difference(@2025-01-02, 'day')"
+      result: [1]
+    - desc: difference in days (multiple days)
+      expression: "@2025-01-01.difference(@2025-01-15, 'day')"
+      result: [14]
+
+  - 'group: difference - datetime with time precision':
+    - desc: difference in hours
+      expression: "@2025-01-01T10:30:00.difference(@2025-01-01T15:15:00, 'hour')"
+      result: [5]
+    - desc: difference in minutes
+      expression: "@2025-01-01T10:00:30.difference(@2025-01-01T10:45:15, 'minute')"
+      result: [45]
+
+  - 'group: difference - time values':
+    - desc: difference in hours (time only)
+      expression: "@T10:30:00.difference(@T15:15:00, 'hour')"
+      result: [5]
+
+  - 'group: difference - empty results':
+    - desc: empty when precision exceeds input precision
+      expression: "@2025-01.difference(@2025-06-15, 'day')"
+      result: []
+    - desc: empty when precision exceeds value precision
+      expression: "@2025-01-15.difference(@2025-06, 'day')"
+      result: []
+
+  - 'group: error cases':
+    - desc: error on type mismatch (date vs time)
+      expression: "@2025-01-01.duration(@T10:00:00, 'day')"
+      error: true
+    - desc: error on invalid precision for date
+      expression: "@2025-01-01.duration(@2025-06-15, 'hour')"
+      error: true
+    - desc: error on invalid precision for time
+      expression: "@T10:00:00.duration(@T15:00:00, 'day')"
+      error: true
