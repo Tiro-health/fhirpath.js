@@ -165,6 +165,8 @@ engine.invocationTable = {
   now:            {fn: datetime.now },
   today:          {fn: datetime.today },
   timeOfDay:      {fn: datetime.timeOfDay },
+  duration:       {fn: datetime.duration, arity: {2: ["Any", "String"]}},
+  difference:     {fn: datetime.difference, arity: {2: ["Any", "String"]}},
 
   repeat:          {fn: filtering.repeatMacro, arity: {1: ["Expr"]}},
   children:        {fn: navigation.children },
